@@ -43,9 +43,6 @@ async def on_startup():
 
 if __name__ == "__main__":
     print("BOT STARTED")
-    
-    # ВЫЗЫВАЕМ функцию скобками (), чтобы передать корутину, как требует vkbottle
-    bot.on_startup.append(on_startup())
-    
-    # Запуск бота
-    bot.run()
+
+    bot.loop_wrapper.add_task(on_startup())
+    bot.run_forever()
