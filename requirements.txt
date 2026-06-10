@@ -1,0 +1,4 @@
+vkbottle
+asyncpg
+python-dotenv
+aiohttp
