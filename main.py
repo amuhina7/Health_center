@@ -1,6 +1,6 @@
 import ssl
 import aiohttp
-import traceback  # Добавили для вывода подробного трейсбэка
+import traceback
 from vkbottle import Bot, AiohttpClient
 from config import TOKEN
 from database import init_db
@@ -9,42 +9,40 @@ from handlers import bl
 # Инициализируем бота
 bot = Bot(token=TOKEN)
 
-# Интегрируем ветку хэндлеров из файла handlers.py в основного бота
+# Интегрируем ветку хэндлеров
 bot.labeler.load(bl)
 
+# Используем официальный декоратор вместо ручного add_task
+@bot.loop_wrapper.on_startup
 async def on_startup():
     try:
         print("--- [START] НАЧАЛО ВЫПОЛНЕНИЯ ON_STARTUP ---")
-        
-        # 1. Подключаем базу данных
         print("Подключение к базе данных...")
         await init_db()
         print("База данных успешно подключена!")
         
-        # 2. Настраиваем SSL-контекст для обхода возможных ошибок сертификации
+        # Настраиваем SSL-контекст
         ssl_context = ssl.create_default_context()
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
 
-        # 3. Собираем кастомную aiohttp-сессию
+        # Собираем кастомную сессию
         connector = aiohttp.TCPConnector(ssl=ssl_context)
         custom_session = aiohttp.ClientSession(connector=connector)
         
-        # 4. Внедряем сессию в http-клиент vkbottle
         bot.api.http_client = AiohttpClient(session=custom_session)
         print("SSL FIX APPLIED SUCCESSFULLY")
         print("--- [SUCCESS] ON_STARTUP ПОЛНОСТЬЮ ВЫПОЛНЕН ---")
-        
     except Exception as e:
         print("\n" + "="*50)
-        print("!!! НАЙДЕНА РЕАЛЬНАЯ ОШИБКА ЗАПУСКА !!!")
+        print("!!! НАЙДЕНА ОШИБКА ВНУТРИ ON_STARTUP !!!")
         print(f"Тип исключения: {type(e).__name__}")
         print(f"Текст ошибки: {e}")
         print("="*50)
-        traceback.print_exc()  # Показывает конкретную строку, где всё упало
+        traceback.print_exc()
         print("="*50 + "\n")
 
 if __name__ == "__main__":
-    bot.loop_wrapper.add_task(on_startup())
     print("BOT STARTED")
-    bot.run_forever()
+    # Используем актуальный метод run() вместо устаревшего run_forever()
+    bot.run()

@@ -2,3 +2,4 @@ vkbottle
 asyncpg
 python-dotenv
 aiohttp
+loguru
