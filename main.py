@@ -12,7 +12,7 @@ bot = Bot(token=TOKEN)
 # Интегрируем ветку хэндлеров
 bot.labeler.load(bl)
 
-# Обычная асинхронная функция без ломающих декораторов
+# Асинхронная функция инициализации
 async def on_startup():
     try:
         print("--- [START] НАЧАЛО ВЫПОЛНЕНИЯ ON_STARTUP ---")
@@ -44,8 +44,8 @@ async def on_startup():
 if __name__ == "__main__":
     print("BOT STARTED")
     
-    # Правильный способ регистрации таски на запуск согласно документации vkbottle
-    bot.on_startup.append(on_startup)
+    # ВЫЗЫВАЕМ функцию скобками (), чтобы передать корутину, как требует vkbottle
+    bot.on_startup.append(on_startup())
     
     # Запуск бота
     bot.run()
